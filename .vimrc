@@ -8,27 +8,25 @@ endif
 " plugins
 call plug#begin('~/.vim/plugged')
 
-Plug 'vim-syntastic/syntastic'
-Plug 'vim-scripts/BufClose.vim'
-Plug 'nvie/vim-flake8'
-Plug 'junegunn/goyo.vim'
-Plug 'preservim/nerdtree'
-Plug 'easymotion/vim-easymotion'
-Plug 'mileszs/ack.vim'
-Plug 'vim-scripts/vcscommand.vim'
-" Plug 'tmhedberg/SimpylFold'
-" Plug 'Konfekt/FastFold'
-Plug 'davidhalter/jedi-vim'
+Plug 'morhetz/gruvbox' " the color theme
+Plug 'vim-airline/vim-airline' " bottom status line
+Plug 'airblade/vim-gitgutter' " show the gitdiff in the side column
+Plug 'preservim/nerdtree' " file system explorer
+Plug 'vim-syntastic/syntastic' " syntax highlighting
+Plug 'nvie/vim-flake8' " flake8 syntax and style checker for python
+Plug 'davidhalter/jedi-vim' " python autocompletion
 Plug 'hynek/vim-python-pep8-indent'
-Plug 'tell-k/vim-autopep8'
-Plug 'AndrewRadev/splitjoin.vim'
-Plug 'morhetz/gruvbox'
-Plug 'vim-airline/vim-airline'
-Plug 'airblade/vim-gitgutter'
-Plug 'leafgarland/typescript-vim'
-" Plug 'Shougo/vimproc.vim', {'do' : 'make'}
-" Plug 'Quramy/tsuquyomi'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'tell-k/vim-autopep8' " python pep8 formatting
+Plug 'AndrewRadev/splitjoin.vim' " switch between single line and multiline statment
+Plug 'Shougo/vimproc.vim', {'do' : 'make'} " execute commands
+Plug 'leafgarland/typescript-vim' " typescript syntax highlighting
+Plug 'pangloss/vim-javascript'
+Plug 'MaxMEllon/vim-jsx-pretty'
+"Plug 'junegunn/goyo.vim' " distraction free writing
+"Plug 'easymotion/vim-easymotion' " simplified vim motions
+"Plug 'mileszs/ack.vim' " ack search
+"Plug 'vim-scripts/vcscommand.vim' " subversion/cvs file manipulation
+"Plug 'vim-scripts/BufClose.vim'
 
 call plug#end()
 
@@ -38,6 +36,8 @@ syntax on
 if has('gui_running')
     colorscheme evening
 endif
+
+let mapleader = ";"
 
 " enable true colors support "
 set termguicolors
@@ -49,7 +49,7 @@ set bg=dark
 colorscheme gruvbox
 
 set colorcolumn=80
-set gfn=Bitstream\ Vera\ Sans\ Mono\ 12
+set gfn=Bitstream\ Vera\ Sans\ Mono\ 10
 set updatetime=2000
 set nocompatible
 set nowrap
@@ -108,6 +108,9 @@ if &term =~? 'rxvt' || &term =~? 'xterm' || &term =~? 'st-'
     let &t_EI .= "\<Esc>[2 q"
 endif
 
+" jedi vim
+let g:jedi#popup_select_first=1
+
 " Git Gutter
 let g:gitgutter_map_keys = 0
 let g:gitgutter_enabled = 1
@@ -116,6 +119,11 @@ nmap ( <Plug>(GitGutterPrevHunk)
 highlight GitGutterAdd guifg=#009900 ctermfg=Green
 highlight GitGutterChange guifg=#bbbb00 ctermfg=Yellow
 highlight GitGutterDelete guifg=#ff2222 ctermfg=Red
+
+" Buffer shortcuts
+map <leader>n :bnext<CR>
+map <leader>p :bprevious<CR>
+map <leader>d :bdelete<CR>
 
 " Map Ctrl+j to move the cursor to the window below "
 " Map Ctrl+k to move the cursor to the window above "
@@ -144,11 +152,11 @@ map <S-d> :cp<CR>
 " go to next quickfix line
 map <S-f> :cn<CR>
 " pretty-format JSON in current buffer
-map <C-q> :%!python -m json.tool<CR>
+map <leader>j :%!python -m json.tool<CR>
 " recursive grep for symbol under cursor (exact match)
-map <c-g> <Esc>:grep! -r --include=*.py --include=*.h --include=*.c --include=*.cpp --include=*.sh --include=*.pg_dump --include=*.txt --include=*.json --include=*.x --include=*.sql --exclude-dir=site-packages --exclude-dir=build --exclude=pylint.txt --exclude-dir=.mypy_cache '\<<c-r><c-w>\>' .
+map <leader>g :grep! -r --include=*.py --include=*.h --include=*.c --include=*.cpp --include=*.sh --include=*.pg_dump --include=*.txt --include=*.json --include=*.x --include=*.sql --exclude-dir=site-packages --exclude-dir=build --exclude=pylint.txt --exclude-dir=.mypy_cache '\<<c-r><c-w>\>' .
 " recursive grep for symbol under cursor
-map <c-h> <Esc>:grep! -r --include=*.py --include=*.h --include=*.c --include=*.cpp --include=*.sh --include=*.pg_dump --include=*.txt --include=*.json --include=*.x --include=*.sql --exclude-dir=site-packages --exclude-dir=build --exclude=pylint.txt --exclude-dir=.mypy_cache '<c-r><c-w>' .
+map <leader>h :grep! -r --include=*.py --include=*.h --include=*.c --include=*.cpp --include=*.sh --include=*.pg_dump --include=*.txt --include=*.json --include=*.x --include=*.sql --exclude-dir=site-packages --exclude-dir=build --exclude=pylint.txt --exclude-dir=.mypy_cache '<c-r><c-w>' .
 " Ack for symbol under cursor (exact match)
 " map <c-a> <Esc>:Ack! --ignore-dir=site-packages --ignore-dir=build -w '<c-r><c-w>'
 " Show/hide NERD Tree
@@ -208,14 +216,20 @@ let NERDTreeShowHidden=1
 " no select by `"suggest.noselect": true` in your configuration file
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config
-inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
-      \ CheckBackspace() ? "\<Tab>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+"inoremap <silent><expr> <TAB>
+"      \ coc#pum#visible() ? coc#pum#next(1) :
+"      \ CheckBackspace() ? "\<Tab>" :
+"      \ coc#refresh()
+"inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
+"
+"" Make <CR> to accept selected completion item or notify coc.nvim to format
+"" <C-g>u breaks current undo, please make your own choice
+"inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
+"                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+"
+"set statusline^=%{coc#status()}
 
-" Make <CR> to accept selected completion item or notify coc.nvim to format
-" <C-g>u breaks current undo, please make your own choice
-inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction

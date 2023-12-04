@@ -1,5 +1,0 @@
-{
-  "coc.preferences.formatOnSave": true,
-  "suggest.noselect": true,
-  "prettier.trailingComma": "none"
-}
