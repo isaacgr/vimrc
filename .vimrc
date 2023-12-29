@@ -15,18 +15,19 @@ Plug 'preservim/nerdtree' " file system explorer
 Plug 'vim-syntastic/syntastic' " syntax highlighting
 Plug 'nvie/vim-flake8' " flake8 syntax and style checker for python
 Plug 'davidhalter/jedi-vim' " python autocompletion
+Plug 'neoclide/coc.nvim', {'branch': 'release'} " language server
 Plug 'hynek/vim-python-pep8-indent'
 Plug 'tell-k/vim-autopep8' " python pep8 formatting
 Plug 'AndrewRadev/splitjoin.vim' " switch between single line and multiline statment
 Plug 'Shougo/vimproc.vim', {'do' : 'make'} " execute commands
 Plug 'leafgarland/typescript-vim' " typescript syntax highlighting
-Plug 'pangloss/vim-javascript'
+Plug 'pangloss/vim-javascript' " javascript syntax highlighting
 Plug 'MaxMEllon/vim-jsx-pretty'
+Plug 'vim-scripts/BufClose.vim'
 "Plug 'junegunn/goyo.vim' " distraction free writing
 "Plug 'easymotion/vim-easymotion' " simplified vim motions
 "Plug 'mileszs/ack.vim' " ack search
 "Plug 'vim-scripts/vcscommand.vim' " subversion/cvs file manipulation
-"Plug 'vim-scripts/BufClose.vim'
 
 call plug#end()
 
@@ -121,9 +122,20 @@ highlight GitGutterChange guifg=#bbbb00 ctermfg=Yellow
 highlight GitGutterDelete guifg=#ff2222 ctermfg=Red
 
 " Buffer shortcuts
-map <leader>n :bnext<CR>
-map <leader>p :bprevious<CR>
-map <leader>d :bdelete<CR>
+map <leader>bn :bnext<CR>
+map <leader>bp :bprevious<CR>
+map <leader>bd :bprevious\|bdelete#<CR>
+map <leader>bx :buffer<Space>
+
+" Tab shortcuts
+map <leader>tn :tabnext<CR>
+map <leader>tp :tabprevious<CR>
+map <leader>td :tabclose<CR>
+
+noremap <Up> <NOP>
+noremap <Down> <NOP>
+noremap <Left> <NOP>
+noremap <Right> <NOP>
 
 " Map Ctrl+j to move the cursor to the window below "
 " Map Ctrl+k to move the cursor to the window above "
@@ -148,9 +160,9 @@ map <C-F12> :cclose<CR>
 " exit diff mode
 map <F9> :set noscrollbind nodiff<CR>
 " go to previous quickfix line
-map <S-d> :cp<CR>
+map <leader>d :cp<CR>
 " go to next quickfix line
-map <S-f> :cn<CR>
+map <leader>f :cn<CR>
 " pretty-format JSON in current buffer
 map <leader>j :%!python -m json.tool<CR>
 " recursive grep for symbol under cursor (exact match)
@@ -162,37 +174,45 @@ map <leader>h :grep! -r --include=*.py --include=*.h --include=*.c --include=*.c
 " Show/hide NERD Tree
 map <C-n> :NERDTreeToggle<CR>
 
-" syntastic options
-let g:syntastic_python_checkers=['flake8', 'mypy']
-let g:syntastic_python_flake8_exec='./venv/bin/python'
-let g:syntastic_python_flake8_args=['-m', 'flake8']
+"autocmd FileType python map <buffer> <F10> :w<CR>:exec '!python3' shellescape(@%, 1)<CR>
+autocmd FileType python map <buffer> <F10> :w<CR>:exec '!./venv/bin/python' shellescape(@%, 1)<CR>
+
+" coc options
+let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-jedi', 'coc-pyright']
+:nmap <silent> <leader>h :<C-U>call CocAction('doHover')<CR>
+
+" Use <Tab> for trigger completion and navigate to the next completion item
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <Tab> pumvisible() ? "\<C-y>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " TSLint config
 autocmd BufRead,BufNewFile *.tsx,*.ts setlocal filetype=typescript
 
-" mypy only exists for python3
-let g:syntastic_python_mypy_exec='./venv/bin/python'
-let g:syntastic_python_mypy_args=['-m', 'mypy']
-
-" Display syntastic errors in the status line "
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 1
-
-" requires deb: shellcheck
-let g:syntastic_sh_shellcheckers=['shellcheck']
-let g:syntastic_sh_shellcheck_args=['-x', '-e', 'SC1091']
+" syntastic options
+"let g:syntastic_python_checkers=['flake8', 'mypy']
+"let g:syntastic_python_flake8_exec='./venv/bin/python3'
+"let g:syntastic_python_flake8_args=['-m', 'flake8']
+"
+"" mypy only exists for python3
+"let g:syntastic_python_mypy_exec='./venv/bin/python3'
+"let g:syntastic_python_mypy_args=['-m', 'mypy']
+""
+""" Display syntastic errors in the status line "
+"let g:syntastic_always_populate_loc_list = 1
+"let g:syntastic_auto_loc_list = 1
+"let g:syntastic_check_on_open = 1
+"let g:syntastic_check_on_wq = 1
+"
+"" requires deb: shellcheck
+"let g:syntastic_sh_shellcheckers=['shellcheck']
+"let g:syntastic_sh_shellcheck_args=['-x', '-e', 'SC1091']
 
 " autopep8 options
 let g:autopep8_hang_closing=1
 let g:autopep8_aggressive=2
 let g:autopep8_disable_show_diff=1
 autocmd FileType python noremap <buffer> <F8> :call Autopep8()<CR>
-
-" Prettier options
-autocmd FileType typescript setlocal formatprg=prettier\ --parser\ typescript
-autocmd FileType javascript setlocal formatprg=prettier\ --parser\ javascript
 
 " splitjoin
 let g:splitjoin_python_brackets_on_separate_lines = 1
@@ -210,24 +230,6 @@ let NERDTreeShowHidden=1
 " SimpylFold options
 " let g:SimpylFold_fold_import = 0
 " let g:SimpylFold_fold_docstring = 0
-
-" Use tab for trigger completion with characters ahead and navigate
-" NOTE: There's always complete item selected by default, you may want to enable
-" no select by `"suggest.noselect": true` in your configuration file
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config
-"inoremap <silent><expr> <TAB>
-"      \ coc#pum#visible() ? coc#pum#next(1) :
-"      \ CheckBackspace() ? "\<Tab>" :
-"      \ coc#refresh()
-"inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
-"
-"" Make <CR> to accept selected completion item or notify coc.nvim to format
-"" <C-g>u breaks current undo, please make your own choice
-"inoremap <silent><expr> <CR> coc#pum#visible() ? coc#pum#confirm()
-"                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-"
-"set statusline^=%{coc#status()}
 
 function! CheckBackspace() abort
   let col = col('.') - 1

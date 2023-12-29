@@ -1,0 +1,7 @@
+{
+    "coc.preferences.formatOnSave": true,
+    "suggest.noselect": true,
+    "prettier.trailingComma": "none",
+    "prettier.tabWidth": 4,
+    "python.pythonPath": "./venv/bin/python"
+}
