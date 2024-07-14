@@ -73,9 +73,16 @@ set expandtab
 set cindent
 set autoindent
 set smartindent
+
 set shiftwidth=4
 set tabstop=4
 set softtabstop=4
+
+" Modify tabwidth depending on filetype
+autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 tabstop=2
+autocmd FileType typescript setlocal shiftwidth=2 softtabstop=2 tabstop=2
+autocmd FileType html setlocal shiftwidth=2 softtabstop=2 tabstop=2
+
 " Always show the status line at the bottom, even if you only have one window
 " open.
 set laststatus=2
@@ -178,7 +185,7 @@ map <C-n> :NERDTreeToggle<CR>
 autocmd FileType python map <buffer> <F10> :w<CR>:exec '!./venv/bin/python' shellescape(@%, 1)<CR>
 
 " coc options
-let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-jedi', 'coc-pyright']
+let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-jedi', 'coc-pyright', 'coc-eslint', 'coc-tsserver', 'coc-prettier', 'coc-css']
 :nmap <silent> <leader>h :<C-U>call CocAction('doHover')<CR>
 
 " Use <Tab> for trigger completion and navigate to the next completion item
@@ -188,6 +195,9 @@ inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
 " TSLint config
 autocmd BufRead,BufNewFile *.tsx,*.ts setlocal filetype=typescript
+
+" SCSS coc-css extension
+autocmd FileType scss setl iskeyword+=@-@
 
 " syntastic options
 "let g:syntastic_python_checkers=['flake8', 'mypy']
@@ -235,3 +245,9 @@ function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
+
+augroup ReactFiletypes
+  autocmd!
+  autocmd BufRead,BufNewFile *.jsx set filetype=javascriptreact
+  autocmd BufRead,BufNewFile *.tsx set filetype=typescriptreact
+augroup END
