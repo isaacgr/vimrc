@@ -82,6 +82,8 @@ set softtabstop=4
 autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 tabstop=2
 autocmd FileType typescript setlocal shiftwidth=2 softtabstop=2 tabstop=2
 autocmd FileType html setlocal shiftwidth=2 softtabstop=2 tabstop=2
+autocmd FileType css setlocal shiftwidth=2 softtabstop=2 tabstop=2
+autocmd FileType scss setlocal shiftwidth=2 softtabstop=2 tabstop=2
 
 " Always show the status line at the bottom, even if you only have one window
 " open.
@@ -185,7 +187,7 @@ map <C-n> :NERDTreeToggle<CR>
 autocmd FileType python map <buffer> <F10> :w<CR>:exec '!./venv/bin/python' shellescape(@%, 1)<CR>
 
 " coc options
-let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-jedi', 'coc-pyright', 'coc-eslint', 'coc-tsserver', 'coc-prettier', 'coc-css']
+let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-jedi', 'coc-pyright', 'coc-eslint', 'coc-tsserver', 'coc-prettier', 'coc-css', '@yaegassy/coc-tailwindcss3']
 :nmap <silent> <leader>h :<C-U>call CocAction('doHover')<CR>
 
 " Use <Tab> for trigger completion and navigate to the next completion item
@@ -251,3 +253,7 @@ augroup ReactFiletypes
   autocmd BufRead,BufNewFile *.jsx set filetype=javascriptreact
   autocmd BufRead,BufNewFile *.tsx set filetype=typescriptreact
 augroup END
+
+" vim-powered terminal in new tab
+map <Leader>T :tab term ++close<cr>
+tmap <Leader>T <c-w>:tab term ++close<cr>
